@@ -45,11 +45,12 @@ def load_config():
 
 def toggle_fullscreen(screen, screen_width, screen_height, fullscreen):
     """Toggles between fullscreen and windowed mode."""
-    fullscreen = not fullscreen
-    if fullscreen:
+    is_fullscreen = screen.get_flags() & pygame.FULLSCREEN
+    if not is_fullscreen:
         screen = pygame.display.set_mode((screen_width, screen_height), pygame.FULLSCREEN)
     else:
         screen = pygame.display.set_mode((screen_width, screen_height))
+    fullscreen = not is_fullscreen
     return fullscreen, screen
 
 def load_sound(filepath):
@@ -168,8 +169,8 @@ class MainGame:
         # graphics init
         self.screen_width = FULLSCREEN_RESOLUTION[0]
         self.screen_height = FULLSCREEN_RESOLUTION[1]
-        # self.screen = pygame.display.set_mode((self.screen_width, self.screen_height), pygame.FULLSCREEN)
-        self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
+        self.screen = pygame.display.set_mode((self.screen_width, self.screen_height), pygame.FULLSCREEN)
+        # self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
         pygame.display.set_caption("Game Title")
         self.fullscreen = True
 
@@ -180,14 +181,11 @@ class MainGame:
         self.game_font = pygame.font.SysFont("arial", 52)
 
         # common variables init
-        self.clock = pygame.time.Clock()
-        self.running = True
-        self.game_mode = "menu"
-        self.play_welcome_sound = True
         pygame.mixer.init()
         self.clock = pygame.time.Clock()
         self.running = True
         self.game_mode = "menu"
+        self.play_welcome_sound = True
 
         # --- start of game variables ---
 
@@ -203,26 +201,43 @@ class MainGame:
         self.max_num_choices = 5 # Maximum number of choices
         self.square_size = self.screen_width // self.max_num_choices - 10  # Square size based on max number of choices
 
-        self.title_sound = pygame.mixer.Sound("assets/title.wav")    
-        self.select_sound = pygame.mixer.Sound("assets/select.wav")  
+        # self.title_sound = pygame.mixer.Sound("assets/title.wav")    
+        # self.select_sound = pygame.mixer.Sound("assets/select.wav")  
         self.well_done_sound = pygame.mixer.Sound("assets/well_done.wav")
         self.click_sound = pygame.mixer.Sound("assets/mouse_click.wav")
+        # self.right_sounds = [
+        #     pygame.mixer.Sound("assets/correct.wav"),
+        #     pygame.mixer.Sound("assets/excellent.wav"),
+        #     pygame.mixer.Sound("assets/good.wav"),
+        #     pygame.mixer.Sound("assets/great.wav"),
+        #     pygame.mixer.Sound("assets/right.wav"),
+        #     pygame.mixer.Sound("assets/verygood.wav"),
+        #     pygame.mixer.Sound("assets/yes.wav")
+        #     ]
+        # self.wrong_sounds = [
+        #     pygame.mixer.Sound("assets/bad.wav"),
+        #     pygame.mixer.Sound("assets/no.wav"),
+        #     pygame.mixer.Sound("assets/nogood.wav"),
+        #     pygame.mixer.Sound("assets/notgood.wav"),
+        #     pygame.mixer.Sound("assets/wrong.wav")
+        #     ]
         self.right_sounds = [
-            # pygame.mixer.Sound("assets/correct.wav"),
-            pygame.mixer.Sound("assets/excellent.wav"),
-            pygame.mixer.Sound("assets/good.wav"),
-            pygame.mixer.Sound("assets/great.wav"),
-            # pygame.mixer.Sound("assets/right.wav"),
-            pygame.mixer.Sound("assets/verygood.wav"),
-            pygame.mixer.Sound("assets/yes.wav")
+            generate_speech_sound("Awesome!"),
+            generate_speech_sound("Excellent!"),
+            generate_speech_sound("Good!"),
+            generate_speech_sound("Great!"),
+            generate_speech_sound("Right!"),
+            generate_speech_sound("Very good!"),
+            generate_speech_sound("Yes!")
             ]
         self.wrong_sounds = [
-            pygame.mixer.Sound("assets/bad.wav"),
-            pygame.mixer.Sound("assets/no.wav"),
-            pygame.mixer.Sound("assets/nogood.wav"),
-            pygame.mixer.Sound("assets/notgood.wav"),
-            pygame.mixer.Sound("assets/wrong.wav")
-            ]
+            generate_speech_sound("Bad!"),
+            generate_speech_sound("No!"),
+            generate_speech_sound("Not good!"),
+            generate_speech_sound("Wrong!"),
+            generate_speech_sound("No good!"),
+            generate_speech_sound("Not right!")
+        ]
 
         self.happy_face = pygame.image.load("assets/happy_face.png") 
         self.sad_face = pygame.image.load("assets/red_sad_face.png")     
@@ -282,6 +297,7 @@ class MainGame:
         """Main game loop."""
         while self.running:
             if self.game_mode == "menu":
+                print(self.game_mode)
                 self.run_menu()
             elif self.game_mode == "colors":
                 self.run_colors()
@@ -354,18 +370,21 @@ class MainGame:
                         self.running = False
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if menu_mygame_button.is_clicked(event.pos):
+                        self.click_sound.play()
                         self.game_mode = "colors"
                     elif menu_options_button.is_clicked(event.pos):
+                        self.click_sound.play()
                         self.game_mode = "options"
                     elif menu_quit_button.is_clicked(event.pos):
+                        self.click_sound.play()
                         self.running = False
 
     def run_options(self):
         """Handles the words mode loop."""
         # Prompt text lower left corner
-        prompt_text = self.text_font.render("Hint: Hint text goes here...", True, WHITE)
+        prompt_text = self.text_font.render("Hint: Adjust the goal of the game.", True, WHITE)
         prompt_rect = prompt_text.get_rect(bottomleft=(20, self.screen_height - 20))
-        back_button = Button(self.screen_width - 220, self.screen_height - 70, "Back", 200, 50, DARK_RED)
+        options_back_button = Button(self.screen_width - 200 - 20, 20, "Back", 200, 50, DARK_RED)
 
         # --- Start of game mode init section ---
 
@@ -385,7 +404,7 @@ class MainGame:
             self.clock.tick(60)
             self.screen.fill(DARK_GRAY)
             self.screen.blit(prompt_text, prompt_rect)
-            back_button.draw(self.screen, self.button_font)
+            options_back_button.draw(self.screen, self.button_font)
 
             # --- Start of frame creation ---
 
@@ -443,7 +462,7 @@ class MainGame:
                             self.game_mode = "menu"
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     x, y = event.pos
-                    if back_button.is_clicked(event.pos):
+                    if options_back_button.is_clicked(event.pos):
                         self.click_sound.play()
                         self.game_mode = "menu"
                     if ok_button.rect.collidepoint(x, y):
@@ -503,11 +522,13 @@ class MainGame:
 
     def run_colors(self):
         """Handles the words mode loop."""
+        # Back button upper right corner
+        colors_back_button = Button(self.screen_width - 200 - 20, 20, "Back", 200, 50, DARK_RED)
+
         # Prompt text lower left corner
-        prompt_text = self.text_font.render("Hint: Hint text goes here...", True, WHITE)
+        prompt_text = self.text_font.render("Hint: Touch or click on a color square to answer.", True, WHITE)
         prompt_rect = prompt_text.get_rect(bottomleft=(20, self.screen_height - 20))
 
-        back_button = Button(self.screen_width - 220, self.screen_height - 70, "Back", 200, 50, DARK_RED)
         # --- Start of game mode init section ---
 
         # new game variables
@@ -515,10 +536,8 @@ class MainGame:
         real_score = 0
         target_question_num = 10
         wrong_answer = False
-        force_correct_color = None
         round_over = False
-        new_round = True
-        running = True
+        new_question = True
         result = None
         show_next_button = False
         highlight_x, highlight_y = 0, 0
@@ -529,7 +548,6 @@ class MainGame:
 
         # Button definitions
         next_button = Button(self.screen_width - 200 - 20, self.screen_height - 50 - 20, "Next", 200, 50)
-        quit_button = Button(self.screen_width - 200 - 20, 20, "Quit", 200, 50, "darkred")
         new_game_button = Button(self.screen_width // 2 - 200 - 10, self.screen_height // 2 + 50, "New Game", 200, 50)
         exit_game_button = Button(self.screen_width // 2 + 10, self.screen_height // 2 + 50, "Exit Game", 200, 50, "darkred")
 
@@ -540,7 +558,7 @@ class MainGame:
             self.clock.tick(60)
             self.screen.fill(DARK_GRAY)
             self.screen.blit(prompt_text, prompt_rect)
-            back_button.draw(self.screen, self.button_font)
+            colors_back_button.draw(self.screen, self.button_font)
 
             # --- Start of frame creation ---
             # Display the score
@@ -572,18 +590,15 @@ class MainGame:
             if show_next_button and not round_over:
                 next_button.draw(self.screen, self.button_font)
 
-            # Draw the "Quit" button
-            if not round_over:
-                quit_button.draw(self.screen, self.button_font)
-
-            # Play sounds
-            if new_round:
-                new_round = False
-                pygame.time.delay(250)  # Delay for 1 second
-                self.title_sound.play()  # Play title sound at the beginning of each round
-                pygame.time.delay(500)
-                self.color_items[correct_color]["sound"].play()  # Play correct color sound at the title screen
-            # return game_rect
+            # Play voice prompt
+            if new_question:
+                new_question = False
+                question_prompt = random.choice([f"Find {correct_color}!", f"Where is {correct_color}?", f"Point to {correct_color}!"])
+                generate_speech_sound(question_prompt).play()
+                # pygame.time.delay(250)
+                # self.title_sound.play() 
+                # pygame.time.delay(500)
+                # self.color_items[correct_color]["sound"].play() 
 
             if round_over:
                 # Display the game over screen
@@ -599,29 +614,29 @@ class MainGame:
                 pygame.display.flip()
 
                 # Event handling for game over screen
-                round_waiting = True
-                while round_waiting:
+                round_over_waiting = True
+                while round_over_waiting:
                     for event in pygame.event.get():
                         if event.type == pygame.QUIT:
                             self.running = False
                         elif event.type == pygame.MOUSEBUTTONDOWN:
                             x, y = event.pos
-                            if self.new_game_button.rect.collidepoint(x, y):
+                            if new_game_button.rect.collidepoint(x, y):
                                 # Reset the game
                                 self.click_sound.play()
                                 self.result = None
                                 question_num = 0
-                                real_score = 0
+                                real_score = 0 
                                 round_over = False
                                 self.game_mode = "options"
                                 correct_color, square_colors = self.generate_squares(self.num_choices)
-                                self.show_next_button = False
-                                round_waiting = False
-                            elif self.exit_game_button.rect.collidepoint(x, y):
+                                show_next_button = False
+                                round_over_waiting = False
+                            elif exit_game_button.rect.collidepoint(x, y):
                                 self.click_sound.play()
                                 self.running = False  # Exit the game
-                                round_waiting = False
-
+                                round_over_waiting = False
+                                
             # --- End of frame creation ---
 
             # --- Event handlers ---
@@ -633,25 +648,21 @@ class MainGame:
                     if event.key == pygame.K_RETURN and pygame.key.get_mods() & pygame.KMOD_ALT:
                         self.fullscreen, self.screen = toggle_fullscreen(self.screen, self.screen_width, self.screen_height, self.fullscreen)
                     elif event.key == pygame.K_ESCAPE:
-                            self.game_mode = "menu"
+                        self.game_mode = "menu"
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if back_button.is_clicked(event.pos):
+                    if colors_back_button.is_clicked(event.pos):
+                        self.click_sound.play()
                         self.game_mode = "menu"
                     x, y = event.pos
-                    # click next button to proceed to the next round
                     if show_next_button and next_button.rect.collidepoint(x, y):
                         # Proceed to the next round
+                        print('click next button')
                         self.click_sound.play()
                         show_next_button = False
                         wrong_answer = False
                         result = None
                         correct_color, square_colors = self.generate_squares(self.num_choices)
-                        new_round = True
-                    # click quit button to exit the game
-                    elif quit_button.rect.collidepoint(x, y):
-                        self.click_sound.play()
-                        running = False  # Quit the game
-                    # click on the squares to select the color
+                        new_question = True
                     elif not show_next_button:
                         for i, pos in enumerate(square_positions):
                             if pos[0] <= x <= pos[0] + self.square_size and pos[1] <= y <= pos[1] + self.square_size:
@@ -668,13 +679,11 @@ class MainGame:
                                         round_over = True
                                     else:
                                         next_button.draw(self.screen, self.button_font)
-                                    pygame.display.flip()
                                 else:
                                     result = "WRONG !"
                                     random.choice(self.wrong_sounds).play()
                                     show_next_button = False
                                     wrong_answer = True
-                                break
 
             pygame.display.flip()
 
