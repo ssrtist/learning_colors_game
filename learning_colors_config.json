@@ -1,0 +1,7 @@
+{
+    "sounds": ["sound1", "sound2", "sound3"],
+    "pics": ["pic1", "pic2", "pic3"],
+    "fullscreen": true,
+    "screen_width": 1024,
+    "screen_height": 768
+}
