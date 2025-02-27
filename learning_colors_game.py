@@ -160,7 +160,6 @@ class Button:
     def is_clicked(self, pos):
         return self.rect.collidepoint(pos)
 
-# --- Game Class ---
 class MainGame:
     """Main class to manage the Game."""
     def __init__(self):
@@ -279,7 +278,6 @@ class MainGame:
         """Main game loop."""
         while self.running:
             if self.game_mode == "menu":
-                print(self.game_mode)
                 self.run_menu()
             elif self.game_mode == "colors":
                 self.run_colors()
@@ -635,8 +633,6 @@ class MainGame:
                         self.game_mode = "menu"
                     x, y = event.pos
                     if show_next_button and next_button.rect.collidepoint(x, y):
-                        # Proceed to the next round
-                        print('click next button')
                         self.click_sound.play()
                         show_next_button = False
                         wrong_answer = False
