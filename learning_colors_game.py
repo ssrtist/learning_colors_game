@@ -201,26 +201,8 @@ class MainGame:
         self.max_num_choices = 5 # Maximum number of choices
         self.square_size = self.screen_width // self.max_num_choices - 10  # Square size based on max number of choices
 
-        # self.title_sound = pygame.mixer.Sound("assets/title.wav")    
-        # self.select_sound = pygame.mixer.Sound("assets/select.wav")  
-        self.well_done_sound = pygame.mixer.Sound("assets/well_done.wav")
+        self.well_done_sound = generate_speech_sound("You did it! Good job!")
         self.click_sound = pygame.mixer.Sound("assets/mouse_click.wav")
-        # self.right_sounds = [
-        #     pygame.mixer.Sound("assets/correct.wav"),
-        #     pygame.mixer.Sound("assets/excellent.wav"),
-        #     pygame.mixer.Sound("assets/good.wav"),
-        #     pygame.mixer.Sound("assets/great.wav"),
-        #     pygame.mixer.Sound("assets/right.wav"),
-        #     pygame.mixer.Sound("assets/verygood.wav"),
-        #     pygame.mixer.Sound("assets/yes.wav")
-        #     ]
-        # self.wrong_sounds = [
-        #     pygame.mixer.Sound("assets/bad.wav"),
-        #     pygame.mixer.Sound("assets/no.wav"),
-        #     pygame.mixer.Sound("assets/nogood.wav"),
-        #     pygame.mixer.Sound("assets/notgood.wav"),
-        #     pygame.mixer.Sound("assets/wrong.wav")
-        #     ]
         self.right_sounds = [
             generate_speech_sound("Awesome!"),
             generate_speech_sound("Excellent!"),
@@ -313,18 +295,18 @@ class MainGame:
         title_rect = title_text.get_rect(center=(self.screen_width // 2, self.screen_height // 8))
 
         # Prompt text lower left corner
-        prompt_text = self.text_font.render("Hint: Touch or click on a button to start.", True, WHITE)
+        prompt_text = self.text_font.render("Hint: Tap or click on a button to start.", True, WHITE)
         prompt_rect = prompt_text.get_rect(bottomleft=(20, self.screen_height - 20))
 
         # Arrange buttons in a vertical stack centered on screen
-        button_width = 200
+        button_width = 300
         button_height = 50
         spacing = 20
         total_height = 4 * button_height + 3 * spacing
         start_y = self.screen_height // 2 - total_height // 2
         center_x = self.screen_width // 2 - button_width // 2
 
-        menu_mygame_button = Button(center_x, start_y, "Find Colors", button_width, button_height, DARK_GREEN)
+        menu_colors_button = Button(center_x, start_y, "Find Colors", button_width, button_height, DARK_GREEN)
         menu_options_button = Button(center_x, start_y + (button_height + spacing), "Options", button_width, button_height, DARK_GREEN)
         menu_quit_button = Button(center_x, start_y + (button_height + spacing) * 2, "Quit", button_width, button_height, DARK_RED)
 
@@ -339,7 +321,7 @@ class MainGame:
             self.screen.blit(prompt_text, prompt_rect)
 
             # Draw buttons in center
-            menu_mygame_button.draw(self.screen, self.button_font)
+            menu_colors_button.draw(self.screen, self.button_font)
             menu_options_button.draw(self.screen, self.button_font)
             menu_quit_button.draw(self.screen, self.button_font)
 
@@ -350,8 +332,6 @@ class MainGame:
                 welcome_sound = generate_speech_sound("Welcome to Learning Colors Game!")
                 welcome_sound.play()
                 self.play_welcome_sound = False
-                while pygame.mixer.get_busy():
-                    self.clock.tick(10)
 
             if play_menu_sound:
                 menu_sound = generate_speech_sound("Menu screen sound goes here...")
@@ -369,9 +349,9 @@ class MainGame:
                     elif event.key == pygame.K_ESCAPE or event.key == pygame.K_q:
                         self.running = False
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if menu_mygame_button.is_clicked(event.pos):
+                    if menu_colors_button.is_clicked(event.pos):
                         self.click_sound.play()
-                        self.game_mode = "colors"
+                        self.game_mode = "options"
                     elif menu_options_button.is_clicked(event.pos):
                         self.click_sound.play()
                         self.game_mode = "options"
@@ -413,10 +393,10 @@ class MainGame:
             self.screen.blit(title_text, (self.screen_width // 2 - title_text.get_width() // 2, 50))
 
             # Section 1. Option for number of choices
-            choices_text = self.button_font.render(f"Number of choices: ", True, "white")
-            self.screen.blit(choices_text, (self.screen_width // 2 - choices_text.get_width() // 2, self.screen_height * 1 // 5 - 50))
+            num_choices_prompt_text = self.button_font.render(f"Number of choices: ", True, "white")
+            self.screen.blit(num_choices_prompt_text, (self.screen_width // 2 - num_choices_prompt_text.get_width() // 2, self.screen_height * 1 // 5 - 50))
             num_choices_text = self.button_font.render(f"{self.num_choices}", True, "darkred")
-            self.screen.blit(num_choices_text, (self.screen_width // 2 - num_choices_text.get_width() // 2, self.screen_height * 1 // 5))
+            self.screen.blit(num_choices_text, (self.screen_width // 2 - num_choices_text.get_width() // 2, self.screen_height * 1 // 5 + 10))
 
             # Draw "+" button
             plus_button = Button(self.screen_width // 2 - 25 + 50, self.screen_height * 1 // 5, "+", 50, 50, "darkred")
@@ -426,8 +406,8 @@ class MainGame:
             minus_button.draw(self.screen, self.button_font)
 
             # Section 2. Option for available colors
-            choices_text = self.button_font.render("Available choices: ", True, "white")
-            self.screen.blit(choices_text, (self.screen_width // 2 - choices_text.get_width() // 2, self.screen_height * 2 // 5 - 50))
+            available_choices_text = self.button_font.render("Available choices: ", True, "white")
+            self.screen.blit(available_choices_text, (self.screen_width // 2 - available_choices_text.get_width() // 2, self.screen_height * 2 // 5 - 50))
             # Draw option checkboxes
             for acolor in self.COLOR_NAMES:
                 pygame.draw.rect(self.screen, acolor, opt_rect[acolor], 4)
@@ -526,7 +506,7 @@ class MainGame:
         colors_back_button = Button(self.screen_width - 200 - 20, 20, "Back", 200, 50, DARK_RED)
 
         # Prompt text lower left corner
-        prompt_text = self.text_font.render("Hint: Touch or click on a color square to answer.", True, WHITE)
+        prompt_text = self.text_font.render("Hint: Tap or click on a color square to answer.", True, WHITE)
         prompt_rect = prompt_text.get_rect(bottomleft=(20, self.screen_height - 20))
 
         # --- Start of game mode init section ---
@@ -566,7 +546,7 @@ class MainGame:
             self.screen.blit(score_text, (20, 20))
 
             # Display the color name to select
-            game_text = self.normal_font.render(f"Find {correct_color.capitalize()}", True, "black")
+            game_text = self.normal_font.render(f"Find Color {correct_color.capitalize()}", True, "black")
             game_rect = pygame.Rect(self.screen_width // 2 - game_text.get_width() // 2 - 2, 50 - 2, game_text.get_width() + 4, game_text.get_height() + 4)
             pygame.draw.rect(self.screen, "gold", game_rect.inflate(0, 0))
             self.screen.blit(game_text, (self.screen_width // 2 - game_text.get_width() // 2, 50))
