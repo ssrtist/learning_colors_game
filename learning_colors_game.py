@@ -11,7 +11,6 @@ from gtts import gTTS
 # --- Global Constants and Configuration ---
 CONFIG_FILE_PATH = "game_config.json"
 SOUND_ACTION_FILE = "assets/mouse_click.wav"
-SOUND_ERROR_FILE = "assets/nogood.wav"
 FULLSCREEN_RESOLUTION = (1920, 1080)
 WINDOWED_RESOLUTION = (1024, 768)
 WHITE = (255, 255, 255)
@@ -274,6 +273,26 @@ class MainGame:
 
         self.COLOR_NAMES = list(self.color_items.keys())
         self.force_correct_color = None
+
+        # --- Background Music ---
+        self.menu_music = "assets/bgm_menu.mp3"  # Replace with your menu music file
+        self.options_music = "assets/bgm_options.mp3" # Replace with your option music
+        self.colors_music = "assets/bgm_colors.mp3"  # Replace with your colors music file
+        self.current_music = None
+        self.play_music(self.menu_music)
+
+    def play_music(self, music_file):
+        """Plays background music, ensuring only one track is playing at a time."""
+        if self.current_music != music_file:
+            pygame.mixer.music.stop()
+            try:
+                pygame.mixer.music.load(music_file)
+                pygame.mixer.music.set_volume(0.1)
+                pygame.mixer.music.play(-1)
+                self.current_music = music_file
+            except pygame.error as e:
+                print(f"Error playing music {music_file}: {e}")
+
     def run(self):
         """Main game loop."""
         while self.running:
@@ -288,6 +307,8 @@ class MainGame:
 
     def run_menu(self):
         """Handles the main menu loop."""
+        self.play_music(self.menu_music)
+
         # Title text top center
         title_text = self.title_font.render("The Learning Colors Game", True, DARK_BLUE)
         title_rect = title_text.get_rect(center=(self.screen_width // 2, self.screen_height // 8))
@@ -359,6 +380,8 @@ class MainGame:
 
     def run_options(self):
         """Handles the words mode loop."""
+        self.play_music(self.options_music)
+
         # Prompt text lower left corner
         prompt_text = self.text_font.render("Hint: Adjust the goal of the game.", True, WHITE)
         prompt_rect = prompt_text.get_rect(bottomleft=(20, self.screen_height - 20))
@@ -500,6 +523,8 @@ class MainGame:
 
     def run_colors(self):
         """Handles the words mode loop."""
+        self.play_music(self.colors_music)
+        
         # Back button upper right corner
         colors_back_button = Button(self.screen_width - 200 - 20, 20, "Back", 200, 50, DARK_RED)
 
