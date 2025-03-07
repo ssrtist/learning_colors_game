@@ -1,4 +1,4 @@
-""" This is a learning game template """
+""" This is a beginner's game for learning colors """
 
 # --- import modules ---
 import os
