@@ -228,42 +228,42 @@ class MainGame:
         self.color_items = {
             "black": { 
                 "value" : (0, 0, 0),
-                "sound" : pygame.mixer.Sound("assets/black.wav"),
+                "sound" : pygame.mixer.Sound("assets/black.wav") if os.path.exists("assets/black.wav") else generate_speech_sound('black'),
                 "toggle" : True
             },
             "white": { 
                 "value" : (255, 255, 255),
-                "sound" : pygame.mixer.Sound("assets/white.wav"),
+                "sound" : pygame.mixer.Sound("assets/white.wav") if os.path.exists("assets/white.wav") else generate_speech_sound('white'),
                 "toggle" : True
             },
             "red": { 
                 "value" : (255, 0, 0),
-                "sound" : pygame.mixer.Sound("assets/red.wav"),
+                "sound" : pygame.mixer.Sound("assets/red.wav") if os.path.exists("assets/red.wav") else generate_speech_sound('red'),
                 "toggle" : False
             },
             "green": { 
                 "value" : (0, 255, 0),
-                "sound" : pygame.mixer.Sound("assets/green.wav"),
+                "sound" : pygame.mixer.Sound("assets/green.wav") if os.path.exists("assets/green.wav") else generate_speech_sound('green'),
                 "toggle" : False
             },
             "blue": { 
                 "value" : (0, 0, 255),
-                "sound" : pygame.mixer.Sound("assets/blue.wav"),
+                "sound" : pygame.mixer.Sound("assets/blue.wav") if os.path.exists("assets/blue.wav") else generate_speech_sound('blue'),
                 "toggle" : False
             },
             "yellow": { 
                 "value" : (255, 255, 0),
-                "sound" : pygame.mixer.Sound("assets/yellow.wav"),
+                "sound" : pygame.mixer.Sound("assets/yellow.wav") if os.path.exists("assets/yellow.wav") else generate_speech_sound('yellow'),
                 "toggle" : False
             },
             "purple": { 
                 "value" : (128, 0, 128),
-                "sound" : pygame.mixer.Sound("assets/purple.wav"),
+                "sound" : pygame.mixer.Sound("assets/purple.wav") if os.path.exists("assets/purple.wav") else generate_speech_sound('purple'),
                 "toggle" : False
             },
             "pink": { 
                 "value" : (255, 182, 193),
-                "sound" : pygame.mixer.Sound("assets/pink.wav"),
+                "sound" : pygame.mixer.Sound("assets/pink.wav") if os.path.exists("assets/pink.wav") else generate_speech_sound('pink'),
                 "toggle" : False
             }
         }
