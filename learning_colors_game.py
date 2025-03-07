@@ -275,9 +275,9 @@ class MainGame:
         self.force_correct_color = None
 
         # --- Background Music ---
-        self.menu_music = "assets/bgm_menu.mp3"  # Replace with your menu music file
-        self.options_music = "assets/bgm_options.mp3" # Replace with your option music
-        self.colors_music = "assets/bgm_colors.mp3"  # Replace with your colors music file
+        self.menu_music = "assets/bgm_medium.mp3"  # Replace with your menu music file
+        self.options_music = "assets/bgm_medium.mp3" # Replace with your option music
+        self.colors_music = "assets/bgm_strong.mp3"  # Replace with your colors music file
         self.current_music = None
         self.play_music(self.menu_music)
 
@@ -288,7 +288,7 @@ class MainGame:
             try:
                 pygame.mixer.music.load(music_file)
                 pygame.mixer.music.set_volume(0.1)
-                pygame.mixer.music.play(-1)
+                pygame.mixer.music.play(-1, fade_ms=1000)
                 self.current_music = music_file
             except pygame.error as e:
                 print(f"Error playing music {music_file}: {e}")
